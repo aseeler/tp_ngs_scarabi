@@ -20,6 +20,8 @@ for sample in $srr
                       --outdir data/\
                       --split-files\
                       --gzip
+  rm ${sample}_3.fastq.gz  
+  #On a supprimé les fichier '_3' parce que ça sert à rien 
   done
     
   
