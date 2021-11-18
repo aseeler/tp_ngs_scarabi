@@ -17,3 +17,10 @@ Importing two samples (but not the _3 because they are not useful). Script is do
 Quality control using fastqc. File is run_fastqc.sh and the results are in results/Fastqc_analysis
 Then quality control using multiqc. File is run_multiqc.sh and the results are in results/Multiqc_analysis
 The data looks good, we can continue with the analysis
+
+##Alevin
+###Retrieving transcriptome data
+Transcriptome data was found online on the Salmon documentation (https://ics.hutton.ac.uk/atRTD/RTD2/AtRTD2_19April2016.fa). A script 'retrieve_transcriptome.sh' was written to downloads the transcriptome in the data file. 
+
+###Running Alevin
+A script 'Alevin.sh' was written to run Alevin, using the transcriptome data downloaded previously. 
