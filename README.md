@@ -14,4 +14,6 @@ We will study samples from one wild-type and one mutant
 Importing two samples (but not the _3 because they are not useful). Script is download_data.sh
 
 ### Quality control
-Quality control using fastqc. File is run_fastqc.sh
+Quality control using fastqc. File is run_fastqc.sh and the results are in results/Fastqc_analysis
+Then quality control using multiqc. File is run_multiqc.sh and the results are in results/Multiqc_analysis
+The data looks good, we can continue with the analysis
