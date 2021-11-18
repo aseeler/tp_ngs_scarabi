@@ -1,17 +1,17 @@
 library(alevinQC)
 
-setwd("/home/rstudio/mydatalocal/tp_ngs_scarabi")
 
 alevin.path <- "results/Alevin/"
-QCreport.path <- "results/alevinQC_report"
+QCreport.path <- "results/Alevin/alevinQC_report"
 samples <- c("SRR8257101", "SRR8257104")
-for(sample in samples)
+dir.create(QCreport.path)
 
-  
+for(sample in samples)
 {
   alevinQCReport(baseDir = paste0(alevin.path, sample),
                  sampleId = sample,
-                 outputFile = paste0(QCreport.path, "/",sample,"_alevinReport.html"),
+                 outputFile = paste0(sample,"_alevinReport.html"),
+                 outputDir = QCreport.path,
                  outputFormat = "html_document",
                  forceOverwrite = TRUE)
 }
