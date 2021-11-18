@@ -5,3 +5,7 @@ cd ~/mydatalocal/tp_ngs_scarabi
 
 wget https://ics.hutton.ac.uk/atRTD/RTD2/AtRTD2_19April2016.fa \
  -O data/Transcriptome/transcriptome.fa
+ 
+wget https://ics.hutton.ac.uk/atRTD/RTD2/AtRTD2_19April2016.gtf \
+ -O data/Transcriptome/transcriptome.gtf
+ 
