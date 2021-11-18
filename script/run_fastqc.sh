@@ -2,5 +2,5 @@
 
 cd ~/mydatalocal/tp_ngs_scarabi
 
-fastqc -o results/Quality_analysis/ -f fgq data/*.fastq.gz
+fastqc -o results/Fastqc_analysis/ -f fgq data/*.fastq.gz
 
