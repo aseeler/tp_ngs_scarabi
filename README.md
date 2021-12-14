@@ -10,6 +10,15 @@ The scRNAseq was obtained with a 10X Genomics Chromium protocol
 The data is in the GEO database (NCBI) under the accession code GSE123013.
 We will study samples from one wild-type and one mutant
 
+Analysis on the samples : 
+SRR8257100 WT
+SRR8257101 WT
+SRR8257102 WT
+SRR8257103 WT
+SRR8257104 MUT
+SRR8257105 MUT
+SRR8257106 MUT
+
 # Different steps of the analysis
 ## Importing data
 
@@ -21,7 +30,7 @@ Quality control using fastqc. File is run_fastqc.sh and the results are in resul
 Then quality control using multiqc. File is run_multiqc.sh and the results are in results/Multiqc_analysis
 The data looks good, we can continue with the analysis
 
-##Alevin
+#Alevin
 ##Retrieving transcriptome data
 
 Transcriptome data was found online on the Salmon documentation (https://ics.hutton.ac.uk/atRTD/RTD2/AtRTD2_19April2016.fa). A script 'retrieve_transcriptome.sh' was written to downloads the transcriptome in the data file. 
@@ -34,6 +43,20 @@ Created using the bioawk command. Had to select the column to extract.
 
 A script 'Alevin.sh' was written to run Alevin, using the transcriptome data downloaded previously, the salmon library and the tgMap file. The script is run separately for both samples (the WT and the mutant). 
 
+## Retrieving Alevin analysis
+
+The Alevin analysis for every sample was downloaded (from https://flower.ens-lyon.fr/tp_ngs/scarabi/Alevin/quant)
+
+# Seurat analysis
+## Opening files in R
+Alevin analysis of all the samples was opened in an Rmarkdown file. Data will be analyzed using the Seurat package.
+
+##Quality control
+Visualization of the data using violin plots then selection of cells according to some criteria :
+Exclusion of the 5% of cells with the highest percentage of mitochondrial gene expresion
+Selection of the cells with less than 0.2% of chloroplastic genes
+
+##Normalization
 
 
 #Tools
@@ -45,5 +68,8 @@ https://salmon.readthedocs.io/en/latest/salmon.html
 To open the output from the Alevin analysis. Need to install packages "httpuv"then install AlvinQC. For documentation : https://csoneson.github.io/alevinQC/
 Need to install the developer version of AlevinQC : https://www.bioconductor.org/packages/devel/bioc/html/alevinQC.html
 
+## Seurat 
+
+Single-cell analysis. Need to install the packages "Seurat" and "tximport". For documentation : "https://satijalab.org/seurat/articles/pbmc3k_tutorial.html"
 
 
