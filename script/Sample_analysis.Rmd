@@ -78,9 +78,73 @@ Nombre de cellules par échantillon
 table(scarabWT$orig.ident)
 ```
 
-Normalizing the data 
+Normalizing the data
 ```{r}
 scarabWT <- NormalizeData(scarabWT, normalization.method = "LogNormalize", scale.factor = 10000)
 #scale factor : facteur multiplicatif pour que les résultats soient plus faciles à lire
 ```
+
+Selection of the highly variable genes. Threshhold at 8000 
+```{r}
+scarabWT <- FindVariableFeatures(scarabWT, selection.method = "vst", nfeatures = 8000)
+```
+
+Scaling the data
+```{r}
+all.genes <- rownames(scarabWT)
+scarabWT <- ScaleData(scarabWT, features = all.genes)
+```
+
+
+Performing PCA 
+```{r}
+scarabWT <- RunPCA(scarabWT, features = VariableFeatures(object = scarabWT))
+```
+Visualization of PCA results
+```{r}
+print(scarabWT[["pca"]], dims = 1:5, nfeatures = 5)
+VizDimLoadings(scarabWT, dims = 1:2, reduction = "pca")
+```
+
+```{r}
+DimPlot(scarabWT, reduction = "pca")
+
+```
+
+```{r}
+DimHeatmap(scarabWT, dims = 1:15, cells = 500, balanced = TRUE)
+```
+
+JackStraw
+```{r}
+#scarabWT <- JackStraw(scarabWT, num.replicate = 100)
+#scarabWT <- ScoreJackStraw(scarabWT, dims = 1:20)
+```
+
+
+```{r}
+ElbowPlot(scarabWT)
+```
+Neighbors : remplit un graphe avec distance entre cellules
+Clusters : couper le graphe pour obtenir des paquets
+UMAP : representation de ça. Garde le 
+```{r}
+scarabWT <- FindNeighbors(scarabWT, dims = 1:10)
+scarabWT <- FindClusters(scarabWT, resolution = 0.5)
+```
+
+```{r}
+scarabWT <- RunUMAP(scarabWT, dims = 1:10)
+```
+```{r}
+DimPlot(scarabWT, reduction = "umap")
+```
+
+Import markers
+```{r}
+markers<-read.csv("~/mydatalocal/tp_ngs_scarabi/data/Markers.csv",sep="\t",h=T)
+markers
+```
+
+
 
