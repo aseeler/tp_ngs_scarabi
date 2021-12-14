@@ -59,6 +59,19 @@ Selection of the cells with less than 0.2% of chloroplastic genes
 ##Normalization
 
 
+## Highly variable data
+
+## Scaling
+
+## PCA
+
+## Heatmap and Elbow plot
+Visualization of the contribution of each gene to each PCA by heatmap
+And contribution of each PCA to the variance by elbow plots
+
+## UMAP
+Neighbors and clusters were found then visualized by UMAP. Resolution : 0.5
+
 #Tools
 ##Salmon and Alevin
 To count the number of cells that were analyzed and attribute a gene name to every sequence that was sequenced
