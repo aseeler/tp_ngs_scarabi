@@ -11,6 +11,7 @@ Import libraries
 ```{r}
 library(Seurat)
 library(tximport)
+library(ggplot2)
 ```
 
 Create table with the names of the samples
@@ -137,13 +138,56 @@ scarabWT <- FindClusters(scarabWT, resolution = 0.5)
 scarabWT <- RunUMAP(scarabWT, dims = 1:10)
 ```
 ```{r}
-DimPlot(scarabWT, reduction = "umap")
+umapplot<-DimPlot(scarabWT, reduction = "umap")
+ggsave(umapplot,file="~/mydatalocal/tp_ngs_scarabi/results/Featureplot/umap.png",width=20,height=20,units="cm") 
 ```
 
 Import markers
 ```{r}
-markers<-read.csv("~/mydatalocal/tp_ngs_scarabi/data/Markers.csv",sep="\t",h=T)
+markers<-read.table("~/mydatalocal/tp_ngs_scarabi/data/Markers.csv",sep="\t",h=T)
 markers
+```
+
+
+```{r}
+
+markers$Locus<-gsub(" ","",markers$Locus)
+markers$Preferential.expression.in.root<-gsub(" ","",markers$Preferential.expression.in.root)
+#pour retires les espaces en trop dans le nom des features
+```
+
+
+```{r}
+
+markers$Preferential.expression.in.root<-gsub("/"," ",markers$Preferential.expression.in.root) #on retire les slash du nom du cell type parce que l'ordinateur va penser que c'est un path
+celltypes<-unique(markers$Preferential.expression.in.root)
+celltypes
+```
+
+
+```{r}
+
+
+sapply(celltypes,function(x){
+  
+  f<-FeaturePlot(scarabWT, features = markers[markers$Preferential.expression.in.root==x,]$Locus)
+  ggsave(f,file=paste0("~/mydatalocal/tp_ngs_scarabi/results/Featureplot/",x,".png"),width=40,height=40,units="cm") 
+})
+
+```
+
+Creates a file with the combined expression of the top markers of each cell type 
+```{r}
+
+datascore<- data.frame(sapply(celltypes,function(x){ 
+  
+  gene<-markers[markers$Preferential.expression.in.root==x,]$Locus
+  
+  score=colMeans(scarabWT@assays$RNA[gene,])}))
+names(datascore)<-make.names(celltypes)
+scarabWT <- AddMetaData(scarabWT, metadata = datascore)
+g<-FeaturePlot(scarabWT, features=names(datascore))
+ggsave(g,file = "~/mydatalocal/tp_ngs_scarabi/results/Featureplot/combined_umap.png",width=40,height=40,units="cm")
 ```
 
 
