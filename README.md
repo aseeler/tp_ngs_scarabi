@@ -72,6 +72,12 @@ And contribution of each PCA to the variance by elbow plots
 ## UMAP
 Neighbors and clusters were found then visualized by UMAP. Resolution : 0.5
 
+## Downloading markers for different cell types
+Markers were obtained from https://flower.ens-lyon.fr/tp_ngs/scarabi/Li2016/Markers.csv
+
+## Locating expression of genes for each cell type on the UMAP
+Using Featureplot
+
 #Tools
 ##Salmon and Alevin
 To count the number of cells that were analyzed and attribute a gene name to every sequence that was sequenced
@@ -82,7 +88,6 @@ To open the output from the Alevin analysis. Need to install packages "httpuv"th
 Need to install the developer version of AlevinQC : https://www.bioconductor.org/packages/devel/bioc/html/alevinQC.html
 
 ## Seurat 
-
 Single-cell analysis. Need to install the packages "Seurat" and "tximport". For documentation : "https://satijalab.org/seurat/articles/pbmc3k_tutorial.html"
 
 
