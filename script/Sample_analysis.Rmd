@@ -118,8 +118,9 @@ DimHeatmap(scarabWT, dims = 1:15, cells = 500, balanced = TRUE)
 
 JackStraw
 ```{r}
-#scarabWT <- JackStraw(scarabWT, num.replicate = 100)
-#scarabWT <- ScoreJackStraw(scarabWT, dims = 1:20)
+scarabWT <- JackStraw(scarabWT, num.replicate = 100)
+scarabWT <- ScoreJackStraw(scarabWT, dims = 1:40)
+JackStrawPlot(scarabWT,dims=1:40, xmax=1, ymax=1)
 ```
 
 
@@ -150,7 +151,6 @@ markers
 
 
 ```{r}
-
 markers$Locus<-gsub(" ","",markers$Locus)
 markers$Preferential.expression.in.root<-gsub(" ","",markers$Preferential.expression.in.root)
 #pour retires les espaces en trop dans le nom des features
@@ -189,6 +189,42 @@ scarabWT <- AddMetaData(scarabWT, metadata = datascore)
 g<-FeaturePlot(scarabWT, features=names(datascore))
 ggsave(g,file = "~/mydatalocal/tp_ngs_scarabi/results/Featureplot/combined_umap.png",width=40,height=40,units="cm")
 ```
+
+
+Downloading metadata to get all sample names
+```{r}
+samps<-read.table("~/mydatalocal/tp_ngs_scarabi/data/Clean_transcriptome/metadata_Li2016.txt", sep="\t")
+head(samps)
+ech<-samps$V1
+ech
+```
+
+```{r}
+files <- file.path(
+  paste("~/mydatalocal/tp_ngs_scarabi/data/Clean_transcriptome/",ech,"/quant.sf", sep=""))
+files<-files[file.exists(files)]
+files
+```
+
+
+```{r}
+
+tx2gene<-read.table("~/mydatalocal/tp_ngs_scarabi/data/Transcriptome/txp2gene.tsv")
+names(tx2gene)<-c("TXNAME","GENEID")
+tx2gene<-unique(tx2gene)
+head(tx2gene)
+```
+
+
+```{r}
+txis <- lapply(files, function(f) tximport(files = f, type="salmon", tx2gene=tx2gene))
+```
+
+
+```{r}
+txis
+```
+
 
 
 
