@@ -12,6 +12,9 @@ Import libraries
 library(Seurat)
 library(tximport)
 library(ggplot2)
+#Librairie nécessaire pour faire la corrélation
+#install.packages("corrplot")
+library(corrplot)
 ```
 
 Create table with the names of the samples
@@ -247,6 +250,107 @@ df<-data.frame(txis)
 
 ```{r}
 head(df)
+```
+
+
+```{r}
+
+head(scarabWT)
+
+```
+```{r}
+
+avgex<-AverageExpression(scarabWT)
+
+```
+
+
+```{r}
+head(avgex)
+```
+
+```{r}
+scarabWT_avg=data.frame(avgex)
+```
+
+```{r}
+head(scarabWT_avg)
+```
+
+```{r}
+#On fait attention aux noms des gènes présents, car on n'a pas exactement les mêmes
+genes_scarabi <- rownames(scarabWT_avg)
+genes_li <- rownames(tabpur)
+genes_common <- genes_scarabi[genes_scarabi%in%genes_li]
+```
+
+```{r}
+countsLi_norm_avg_alt_sum_c <- tabpur[genes_common,]
+scarabWT_avg_c <- scarabWT_avg[genes_common,]
+
+```
+
+
+```{r}
+#On calcule la matrice de corrélation entre les clusters et les samples
+corLi_scarab_spearman <- cor(scarabWT_avg_c,countsLi_norm_avg_alt_sum_c,method="spearman")
+corrplot(corLi_scarab_spearman, method="color", is.corr=F)
+```
+
+
+```{r}
+
+#Librairie nécessaire pour faire la corrélation
+#install.packages("corrplot")
+#library(corrplot)
+install.packages("network")
+library(network)
+
+#On calcule la matrice de corrélation entre les clusters et les samples
+corLi_scarab_spearman <- cor(scarabWT_avg_c,countsLi_norm_avg_alt_sum_c,method="spearman")
+
+colnames(corLi_scarab_spearman) <- lapply(colnames(corLi_scarab_spearman), function(name){samps[samps$V1==name,3]})
+
+corrplot(corLi_scarab_spearman, method="color", is.corr=F, tl.col = as.color(colnames(corLi_scarab_spearman)))
+
+```
+```{r}
+cluster.id <- max.col(corLi_scarab_spearman)
+sample_names<-names(corLi_scarab_spearman)[cluster.id] #selectionne que les noms qui sotn dans cluster ID
+```
+
+```{r}
+sample_names
+```
+
+
+
+```{r}
+corLi_scarab_spearman<-as.data.frame(corLi_scarab_spearman)
+names<-names(corLi_scarab_spearman)
+
+corLi_select<-corLi_scarab_spearman[,!names(corLi_scarab_spearman)%in%c("whole root","whole root 1")] #conserve toutes les colonnes sauf les "whole root"
+
+names(corLi_select)
+```
+```{r}
+corLi_select
+```
+
+
+```{r}
+sample_names
+
+```
+
+
+```{r}
+
+names(sample_names) <- levels(scarabWT)
+scarabWT <- RenameIdents(scarabWT, sample_names)
+DimPlot(scarabWT, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+
+
 ```
 
 
