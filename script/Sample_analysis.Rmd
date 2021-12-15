@@ -209,20 +209,44 @@ files
 
 ```{r}
 
-tx2gene<-read.table("~/mydatalocal/tp_ngs_scarabi/data/Transcriptome/txp2gene.tsv")
-names(tx2gene)<-c("TXNAME","GENEID")
-tx2gene<-unique(tx2gene)
-head(tx2gene)
+txp2gene<-read.table("~/mydatalocal/tp_ngs_scarabi/data/Transcriptome/txp2gene.tsv")
+names(txp2gene)<-c("TXNAME","GENEID")
+txp2gene<-unique(txp2gene) #conserve uniquement les lignes uniques
+head(txp2gene)
 ```
 
 
 ```{r}
-txis <- lapply(files, function(f) tximport(files = f, type="salmon", tx2gene=tx2gene))
+txis <- lapply(files, function(f) {
+  tab<- tximport(files = f, type="salmon", tx2gene=tx2gene)
+  return(tab$abundance)
+  })
+tabpur<-as.data.frame(txis)
+```
+
+```{r}
+ech
+```
+Obtenir nom des échantillons dans le tableau
+```{r}
+ech2=sapply(files,function(f){strsplit(f,"/")[[1]][6]})
 ```
 
 
 ```{r}
-txis
+names(tabpur)<-make.names(ech2)
+head(tabpur)
+```
+
+
+```{r}
+df<-data.frame(txis)
+
+```
+
+
+```{r}
+head(df)
 ```
 
 
