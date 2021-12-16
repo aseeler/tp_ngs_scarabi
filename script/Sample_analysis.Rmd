@@ -156,7 +156,7 @@ markers
 ```{r}
 markers$Locus<-gsub(" ","",markers$Locus)
 markers$Preferential.expression.in.root<-gsub(" ","",markers$Preferential.expression.in.root)
-#pour retires les espaces en trop dans le nom des features
+#pour retirer les espaces en trop dans le nom des features
 ```
 
 
@@ -220,11 +220,11 @@ head(txp2gene)
 
 
 ```{r}
-txis <- lapply(files, function(f) {
+txis2 <- lapply(files, function(f) {
   tab<- tximport(files = f, type="salmon", tx2gene=tx2gene)
   return(tab$abundance)
   })
-tabpur<-as.data.frame(txis)
+tabpur<-as.data.frame(txis2)
 ```
 
 ```{r}
@@ -243,7 +243,7 @@ head(tabpur)
 
 
 ```{r}
-df<-data.frame(txis)
+df<-data.frame(txis2)
 
 ```
 
@@ -295,6 +295,10 @@ scarabWT_avg_c <- scarabWT_avg[genes_common,]
 #On calcule la matrice de corrélation entre les clusters et les samples
 corLi_scarab_spearman <- cor(scarabWT_avg_c,countsLi_norm_avg_alt_sum_c,method="spearman")
 corrplot(corLi_scarab_spearman, method="color", is.corr=F)
+```
+
+```{r}
+head(corLi_scarab_spearman)
 ```
 
 
@@ -353,6 +357,105 @@ DimPlot(scarabWT, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 
 ```
 
+```{r}
+library(dplyr)
+d %>% 
+  group_by(name) %>% 
+  summarize(avg=mean(length))
+```
+
+# Mutant analysis 
+
+```{r}
+fileM <- "~/mydatalocal/tp_ngs_scarabi/data/Alevin_complete/quant/SRR8257106/alevin/quants_mat.gz"
+file.exists(fileM)
+```
+
+```{r}
+mut<-tximport(files = fileM, type="alevin")
+```
 
 
+
+```{r}
+scarabM <- CreateSeuratObject(counts = mut$counts , min.cells = 3, min.features = 200, project = "SRR8257106")
+
+```
+
+```{r}
+scarabM[["percent.mt"]] <- PercentageFeatureSet(scarabM, pattern = "ATM")
+scarabM[["percent.chloro"]] <- PercentageFeatureSet(scarabM, pattern = "ATC")
+```
+
+```{r}
+VlnPlot(scarabM, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.chloro"), ncol = 4)
+```
+```{r}
+scarabM <- subset(scarabM, subset = percent.mt < 0.1 & percent.chloro<0.2)
+```
+
+```{r}
+VlnPlot(scarabM, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.chloro"), ncol = 4)
+```
+
+```{r}
+scarabM <- NormalizeData(scarabM, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+```{r}
+scarabM <- FindVariableFeatures(scarabM, selection.method = "vst", nfeatures = 5000)
+```
+
+
+Scaling the data
+```{r}
+all.genes <- rownames(scarabM)
+scarabM <- ScaleData(scarabM, features = all.genes)
+```
+
+
+Performing PCA 
+```{r}
+scarabM <- RunPCA(scarabM, features = VariableFeatures(object = scarabM))
+```
+```{r}
+print(scarabM[["pca"]], dims = 1:5, nfeatures = 5)
+VizDimLoadings(scarabM, dims = 1:2, reduction = "pca")
+```
+```{r}
+DimPlot(scarabM, reduction = "pca")
+
+```
+
+```{r}
+ElbowPlot(scarabM)
+```
+
+```{r}
+scarabM <- FindNeighbors(scarabM, dims = 1:10)
+scarabM <- FindClusters(scarabM, resolution = 0.5)
+```
+
+```{r}
+scarabM <- RunUMAP(scarabM, dims = 1:10)
+```
+
+
+```{r}
+umapplot<-DimPlot(scarabM, reduction = "umap")
+ggsave(umapplot,file="~/mydatalocal/tp_ngs_scarabi/results/Featureplot/umap_mutant.png",width=20,height=20,units="cm") 
+```
+
+```{r}
+scarab.anchors <- FindTransferAnchors(reference = scarabWT, query = scarabM,
+                                      dims = 1:30, reference.reduction = "pca")
+scarabM <- MapQuery(anchorset = scarab.anchors, reference = scarabWT, query = scarabM,
+                       reference.reduction = "pca", reduction.model = "umap")
+
+
+p1 <- DimPlot(scarabWT, reduction = "umap", group.by = "seurat_clusters", label = TRUE, label.size = 3,
+              repel = TRUE) + NoLegend() + ggtitle("Reference annotations")
+p2 <- DimPlot(scarabM, reduction = "ref.umap", group.by = "predicted.id", label = TRUE,
+              label.size = 3, repel = TRUE, split.by = "orig.ident") + NoLegend() + ggtitle("Query transferred labels")
+p1 + p2
+```
 

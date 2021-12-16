@@ -78,7 +78,7 @@ Markers were obtained from https://flower.ens-lyon.fr/tp_ngs/scarabi/Li2016/Mark
 ## Locating expression of genes for each cell type on the UMAP
 Using Featureplot
 
-## Annotation through a different methode
+## Annotation through a different method
 Downloaded gene expression data for A. t cell types from flower.ens-lyon.fr
 Created a dataframe with all the data, removing repetitions and using the txp2gene file to associate genes (??)
 
