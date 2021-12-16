@@ -42,7 +42,7 @@ A list containing a matrix for every sample. The matrix contains the gene count 
 txis <- lapply(files, function(f) tximport(files = f, type="alevin"))
 ```
 
-Creating Seurat obkects
+Creating Seurat objects
 ```{r}
 seu_objs <- lapply(seq_along(txis), function(i){
   s <- CreateSeuratObject(counts = txis[[i]]$counts , min.cells = 3, min.features = 200, project = samples[i]) 
@@ -59,10 +59,11 @@ scarabWT[["percent.mt"]] <- PercentageFeatureSet(scarabWT, pattern = "ATM")
 scarabWT[["percent.chloro"]] <- PercentageFeatureSet(scarabWT, pattern = "ATC")
 ```
 
+Visualization
 ```{r}
 VlnPlot(scarabWT, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.chloro"), ncol = 4)
 ```
-
+Selecting cells by selecting only a certain percentage based on the percentage of mitochondrial genes in the cells
 ```{r}
 quant<-quantile(scarabWT[["percent.mt"]]$percent.m, 0.95)
 ```
@@ -74,6 +75,7 @@ Les cellules ayant moins de 0,2% de gènes chloroplastiques
 scarabWT <- subset(scarabWT, subset = percent.mt < quant & percent.chloro<0.2)
 ```
 
+Visualization
 ```{r}
 VlnPlot(scarabWT, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.chloro"), ncol = 4)
 ```
@@ -88,7 +90,7 @@ scarabWT <- NormalizeData(scarabWT, normalization.method = "LogNormalize", scale
 #scale factor : facteur multiplicatif pour que les résultats soient plus faciles à lire
 ```
 
-Selection of the highly variable genes. Threshhold at 8000 
+Selection of the highly variable genes. Threshhold at 8000 cells
 ```{r}
 scarabWT <- FindVariableFeatures(scarabWT, selection.method = "vst", nfeatures = 8000)
 ```
@@ -121,12 +123,12 @@ DimHeatmap(scarabWT, dims = 1:15, cells = 500, balanced = TRUE)
 
 JackStraw
 ```{r}
-scarabWT <- JackStraw(scarabWT, num.replicate = 100)
-scarabWT <- ScoreJackStraw(scarabWT, dims = 1:40)
-JackStrawPlot(scarabWT,dims=1:40, xmax=1, ymax=1)
+#scarabWT <- JackStraw(scarabWT, num.replicate = 100)
+#scarabWT <- ScoreJackStraw(scarabWT, dims = 1:40)
+#JackStrawPlot(scarabWT,dims=1:40, xmax=1, ymax=1)
 ```
 
-
+Elbow plot to see the contribution of each PC in the sample
 ```{r}
 ElbowPlot(scarabWT)
 ```
@@ -139,7 +141,7 @@ scarabWT <- FindClusters(scarabWT, resolution = 0.5)
 ```
 
 ```{r}
-scarabWT <- RunUMAP(scarabWT, dims = 1:10)
+scarabWT <- RunUMAP(scarabWT, dims = 1:10, return.model = T)
 ```
 ```{r}
 umapplot<-DimPlot(scarabWT, reduction = "umap")
@@ -179,6 +181,7 @@ sapply(celltypes,function(x){
 
 ```
 
+
 Creates a file with the combined expression of the top markers of each cell type 
 ```{r}
 
@@ -192,6 +195,9 @@ scarabWT <- AddMetaData(scarabWT, metadata = datascore)
 g<-FeaturePlot(scarabWT, features=names(datascore))
 ggsave(g,file = "~/mydatalocal/tp_ngs_scarabi/results/Featureplot/combined_umap.png",width=40,height=40,units="cm")
 ```
+
+
+# Other annotation method
 
 
 Downloading metadata to get all sample names
@@ -258,6 +264,7 @@ head(df)
 head(scarabWT)
 
 ```
+
 ```{r}
 
 avgex<-AverageExpression(scarabWT)
@@ -357,12 +364,6 @@ DimPlot(scarabWT, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 
 ```
 
-```{r}
-library(dplyr)
-d %>% 
-  group_by(name) %>% 
-  summarize(avg=mean(length))
-```
 
 # Mutant analysis 
 
@@ -417,10 +418,12 @@ Performing PCA
 ```{r}
 scarabM <- RunPCA(scarabM, features = VariableFeatures(object = scarabM))
 ```
+
 ```{r}
 print(scarabM[["pca"]], dims = 1:5, nfeatures = 5)
 VizDimLoadings(scarabM, dims = 1:2, reduction = "pca")
 ```
+
 ```{r}
 DimPlot(scarabM, reduction = "pca")
 
@@ -454,8 +457,31 @@ scarabM <- MapQuery(anchorset = scarab.anchors, reference = scarabWT, query = sc
 
 p1 <- DimPlot(scarabWT, reduction = "umap", group.by = "seurat_clusters", label = TRUE, label.size = 3,
               repel = TRUE) + NoLegend() + ggtitle("Reference annotations")
-p2 <- DimPlot(scarabM, reduction = "ref.umap", group.by = "predicted.id", label = TRUE,
+p2 <- DimPlot(scarabM, reduction = "ref.umap", group.by = "seurat_clusters", label = TRUE,
               label.size = 3, repel = TRUE, split.by = "orig.ident") + NoLegend() + ggtitle("Query transferred labels")
 p1 + p2
 ```
+
+```{r}
+sample_names
+```
+
+```{r}
+cluster_names<-c(sample_names)
+```
+
+
+```{r}
+cluster_names[7]
+cluster_names[15]
+cluster_names[9]
+```
+
+```{r}
+names(sample_names) <- levels(scarabM)
+scarabM <- RenameIdents(scarabM, sample_names)
+DimPlot(scarabM, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+```
+
+
 
